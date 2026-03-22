@@ -38,7 +38,7 @@ def log_to_db(topic, tweet, status):
     print(f"Agent 3: Logged to database → status: {status}")
 
 
-async def send_to_telegram(topic, tweet):
+async def send_to_telegram(topic, tweet, image_path):
     bot = telegram.Bot(token=os.getenv("TELEGRAM_BOT_TOKEN"))
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
@@ -52,8 +52,13 @@ async def send_to_telegram(topic, tweet):
 ⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
     """
 
-    await bot.send_message(chat_id=chat_id, text=message)
-    print("Agent 3: Sent text to Telegram!")
+    if image_path and os.path.exists(image_path):
+        with open(image_path, "rb") as img:
+            await bot.send_photo(chat_id=chat_id, photo=img, caption=message)
+        print("Agent 3: Sent image + text to Telegram!")
+    else:
+        await bot.send_message(chat_id=chat_id, text=message)
+        print("Agent 3: Sent text only to Telegram!")
 
 
 def post_to_instagram(topic, tweet, image_path):
@@ -134,7 +139,7 @@ def run_distribution_agent(topic, tweet, image_path=None, platform="both"):
 
     if platform in ["telegram", "both"]:
         try:
-            asyncio.run(send_to_telegram(topic, tweet))
+            asyncio.run(send_to_telegram(topic, tweet, image_path))
             telegram_status = "success"
         except Exception as e:
             print(f"Agent 3: Telegram failed → {e}")
