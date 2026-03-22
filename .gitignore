@@ -6,3 +6,5 @@ __pycache__/
 logs.db
 used_topics.txt
 image.jpg
+instagram_session.json
+posts/
